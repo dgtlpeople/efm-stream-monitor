@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-09-18T17:56:18.901Z",
-  "state": "OK",
-  "detail": "audio advanced to 1.9s",
+  "checked_at": "2026-09-18T18:26:34.574Z",
+  "state": "SILENT",
+  "detail": "no audio after 25s (readyState=0, networkState=2, error=0, stream responses=5, background tabs=0)",
   "url": "https://www.europafm.ro/",
   "tabs": 0
 }
