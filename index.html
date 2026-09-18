@@ -45,6 +45,13 @@
   .DOWN, .CHECK-FAILED { color: var(--bad); border-color: var(--bad); }
   .meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
   .meta b { color: var(--text); font-weight: 600; }
+  .servers { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+  .srv { display: flex; justify-content: space-between; gap: 8px; font-size: 12.5px; padding: 2px 0; color: var(--muted); }
+  .srv .who { font-variant-numeric: tabular-nums; min-width: 0; }
+  .srv .val { font-weight: 600; white-space: nowrap; }
+  .srv.ok .val { color: var(--ok); }
+  .srv.silent .val { color: var(--warn); }
+  .srv.down .val { color: var(--bad); }
   h2 { font-size: 15px; margin: 32px 0 10px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); }
@@ -71,7 +78,8 @@
 
   <footer>
     <b>OK</b> = curg date și se aude. <b>SILENT</b> = curg date, dar volumul e sub prag, adică ascultătorii nu aud nimic.
-    <b>DOWN</b> = mount lipsă sau nedecodabil.<br>
+    <b>DOWN</b> = mount lipsă sau nedecodabil. Un mount e OK doar dacă toate serverele sunt OK: adresa se rezolvă prin DNS
+    la mai multe servere Icecast, care se strică independent, iar ascultătorul nimerește unul la întâmplare.<br>
     Verificat automat la 5 minute. Pagina se reîncarcă singură la un minut.
   </footer>
 </div>
@@ -103,16 +111,24 @@ function renderMounts(summary) {
   document.getElementById('checked').textContent =
     `Ultima verificare: ${fmtTime(summary.checked_at)} (${ago(summary.checked_at)}) · prag liniște ${summary.silence_threshold_db} dB`;
 
-  document.getElementById('mounts').innerHTML = Object.entries(summary.mounts).map(([name, m]) => `
+  document.getElementById('mounts').innerHTML = Object.entries(summary.mounts).map(([name, m]) => {
+    const servers = Object.entries(m.servers || {}).sort(([a], [b]) => a.localeCompare(b));
+    const rows = servers.map(([address, s]) => `
+      <div class="srv ${s.state.toLowerCase()}">
+        <span class="who">${address}${s.listeners != null ? ` · ${s.listeners} ascultători` : ''}</span>
+        <span class="val">${s.state === 'DOWN' ? 'HTTP ' + s.http : (s.volume_db ?? '—') + ' dB'}</span>
+      </div>`).join('');
+    return `
     <div class="card">
       <div class="name"><span>${name}</span><span class="badge ${m.state}">${m.state}</span></div>
       <div class="meta">
-        Volum: <b>${m.volume_db === null || m.volume_db === undefined ? '—' : m.volume_db + ' dB'}</b><br>
-        Ascultători: <b>${m.listeners ?? '—'}</b><br>
+        Ascultători, toate serverele: <b>${m.listeners ?? '—'}</b><br>
         În această stare din ${fmtTime(m.since)} (${ago(m.since)})<br>
         Sursa conectată din ${fmtTime(m.source_started)}
       </div>
-    </div>`).join('');
+      ${servers.length ? `<div class="servers">${rows}</div>` : ''}
+    </div>`;
+  }).join('');
 }
 
 function renderSpark(samples) {

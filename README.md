@@ -15,6 +15,13 @@ The day before, the opposite failure happened: the source dropped twice (17:13 a
 and all three backends returned 404 for about a minute, with listeners falling from ~2,500
 to ~700.
 
+**Each backend is measured separately.** `astreaming.edi.ro` resolves to three Icecast
+servers through round robin DNS and they fail independently: at 14:25 on 18 Sep, the
+station was silent on 176.118.186.133, where 855 listeners heard nothing, while 10,442
+listeners on the other two heard it normally. Checking the hostname alone returns whichever
+server DNS picked, so the same mount looks fine one minute and broken the next. A mount is
+reported OK only when every server is OK, and alerts name the ones that are not.
+
 This repository catches both, plus a third failure that only shows up in a browser: the
 play button switching to "playing" while the stream request never gets a connection.
 

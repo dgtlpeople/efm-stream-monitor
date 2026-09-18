@@ -7,6 +7,12 @@ was digital silence (-91 dB against -10 dB for normal programming). Availability
 monitoring showed green for three hours, so this script decodes a sample and
 measures its level too.
 
+The host resolves to several Icecast servers behind round robin DNS and they
+fail independently: on 18 Sep 2026, avstreamer3 relayed silence for EuropaFM_aac
+while the other two were fine, so roughly a third of listeners heard nothing and
+the rest heard the station normally. Every backend is therefore measured
+separately, by address, and a mount is only OK when all of them are.
+
 Writes state/summary.json (current state, for the status page), appends state
 changes to history/incidents.jsonl and an hourly sample to history/samples.jsonl.
 
@@ -17,7 +23,9 @@ could not run.
 import json
 import os
 import re
+import socket
 import subprocess
+import tempfile
 import sys
 import urllib.error
 import urllib.request
@@ -54,28 +62,41 @@ def iso(moment):
     return moment.replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def http_status(url, timeout=10):
-    request = urllib.request.Request(url, headers={"User-Agent": "efm-stream-monitor"})
+def backend_addresses():
+    """Every address the stream host resolves to, so each server is checked."""
+    host = STREAM_HOST.split("://", 1)[-1].split("/", 1)[0]
+    port = 443
+    if ":" in host:
+        host, port = host.rsplit(":", 1)
+        port = int(port)
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            response.read(64 * 1024)  # touch the body so a dead mount cannot fake a 200
-            return response.status
-    except urllib.error.HTTPError as exc:
-        return exc.code
-    except Exception:
-        return 0
+        infos = socket.getaddrinfo(host, port, proto=socket.IPPROTO_TCP)
+    except socket.gaierror:
+        return host, port, []
+    return host, port, sorted({info[4][0] for info in infos})
 
 
-def listener_counts(timeout=10):
-    """Listeners per mount, from the public Icecast status page."""
+def curl(url, address, host, port, args, timeout):
+    """curl pinned to one backend address, keeping TLS and the Host header valid."""
+    command = ["curl", "-sS", "--resolve", "%s:%d:%s" % (host, port, address)]
+    command += args + [url]
+    try:
+        return subprocess.run(command, capture_output=True, text=True, timeout=timeout)
+    except (subprocess.TimeoutExpired, FileNotFoundError):
+        return None
+
+
+def listener_counts(address, host, port, timeout=15):
+    """Listeners per mount on one server, from its public Icecast status page."""
     counts = {}
+    result = curl(
+        STREAM_HOST + "/status-json.xsl", address, host, port, ["-m", "10"], timeout
+    )
+    if result is None or result.returncode != 0:
+        return counts
     try:
-        request = urllib.request.Request(
-            STREAM_HOST + "/status-json.xsl", headers={"User-Agent": "efm-stream-monitor"}
-        )
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            stats = json.loads(response.read().decode("utf-8", "replace"))["icestats"]
-    except Exception:
+        stats = json.loads(result.stdout)["icestats"]
+    except (ValueError, KeyError):
         return counts
     sources = stats.get("source", [])
     sources = sources if isinstance(sources, list) else [sources]
@@ -84,61 +105,58 @@ def listener_counts(timeout=10):
         counts[name] = {
             "listeners": source.get("listeners"),
             "source_started": source.get("stream_start_iso8601"),
+            "server": stats.get("host"),
         }
     return counts
 
 
-def mean_volume(mount):
-    """Mean volume in dB over the sample window, or None when undecodable."""
-    command = [
-        FFMPEG, "-hide_banner", "-nostdin",
-        "-rw_timeout", str(SAMPLE_SECONDS * 2_000_000),
-        "-t", str(SAMPLE_SECONDS),
-        "-i", "%s/%s" % (STREAM_HOST, mount),
-        "-af", "volumedetect", "-f", "null", "-",
-    ]
+def sample_volume(mount, address, host, port):
+    """(http status, mean volume in dB) for one mount on one backend."""
+    url = "%s/%s" % (STREAM_HOST, mount)
+    with tempfile.NamedTemporaryFile(suffix=".aac", delete=False) as handle:
+        path = handle.name
     try:
-        result = subprocess.run(
-            command, capture_output=True, text=True, timeout=SAMPLE_SECONDS * 4 + 30
+        result = curl(
+            url, address, host, port,
+            ["-o", path, "-w", "%{http_code}", "-m", str(SAMPLE_SECONDS)],
+            SAMPLE_SECONDS * 3 + 15,
         )
-    except (subprocess.TimeoutExpired, FileNotFoundError):
-        return None
-    found = re.findall(r"mean_volume:\s*(-?\d+(?:\.\d+)?) dB", result.stderr)
-    return float(found[-1]) if found else None
+        if result is None:
+            return 0, None
+        status = int(result.stdout.strip() or 0)
+        # curl exits 28 when --max-time cuts a live stream, which is the normal case
+        if status != 200 or os.path.getsize(path) < 4096:
+            return status, None
+
+        probe = subprocess.run(
+            [FFMPEG, "-hide_banner", "-nostdin", "-i", path, "-af", "volumedetect", "-f", "null", "-"],
+            capture_output=True, text=True, timeout=60,
+        )
+        found = re.findall(r"mean_volume:\s*(-?\d+(?:\.\d+)?) dB", probe.stderr)
+        return status, (float(found[-1]) if found else None)
+    except (subprocess.TimeoutExpired, OSError, ValueError):
+        return 0, None
+    finally:
+        try:
+            os.unlink(path)
+        except OSError:
+            pass
 
 
-def check_mount(mount, listeners):
-    status = http_status("%s/%s" % (STREAM_HOST, mount))
+def check_backend(mount, address, host, port):
+    status, volume = sample_volume(mount, address, host, port)
     if status != 200:
-        return {
-            "state": "DOWN",
-            "http": status,
-            "volume_db": None,
-            "detail": "HTTP %s - the mount is not being served" % status,
-        }
-
-    volume = mean_volume(mount)
+        return {"state": "DOWN", "http": status, "volume_db": None,
+                "detail": "HTTP %s - the mount is not being served" % status}
     if volume is None:
-        return {
-            "state": "DOWN",
-            "http": status,
-            "volume_db": None,
-            "detail": "stream could not be decoded",
-        }
+        return {"state": "DOWN", "http": status, "volume_db": None,
+                "detail": "stream could not be decoded"}
     if volume < SILENCE_DB:
-        return {
-            "state": "SILENT",
-            "http": status,
-            "volume_db": volume,
-            "detail": "mean volume %.1f dB is below %.0f dB - data flows but there is no sound"
-            % (volume, SILENCE_DB),
-        }
-    return {
-        "state": "OK",
-        "http": status,
-        "volume_db": volume,
-        "detail": "mean volume %.1f dB" % volume,
-    }
+        return {"state": "SILENT", "http": status, "volume_db": volume,
+                "detail": "mean volume %.1f dB is below %.0f dB - data flows but there is no sound"
+                % (volume, SILENCE_DB)}
+    return {"state": "OK", "http": status, "volume_db": volume,
+            "detail": "mean volume %.1f dB" % volume}
 
 
 def notify(subject, body):
@@ -189,9 +207,19 @@ def main():
         return 2
 
     previous = load_json(STATE_FILE, {}).get("mounts", {})
-    listeners = listener_counts()
+    host, port, addresses = backend_addresses()
+    if not addresses:
+        print("could not resolve %s" % host, file=sys.stderr)
+        return 2
+
+    listeners = {address: listener_counts(address, host, port) for address in addresses}
     moment = now()
-    summary = {"checked_at": iso(moment), "silence_threshold_db": SILENCE_DB, "mounts": {}}
+    summary = {
+        "checked_at": iso(moment),
+        "silence_threshold_db": SILENCE_DB,
+        "servers": addresses,
+        "mounts": {},
+    }
     # keep mounts this run did not check, so a partial run leaves the page complete
     for name, data in previous.items():
         if name not in MOUNTS:
@@ -199,10 +227,47 @@ def main():
     failed = False
 
     for mount in MOUNTS:
-        result = check_mount(mount, listeners)
-        info = listeners.get(mount, {})
-        result["listeners"] = info.get("listeners")
-        result["source_started"] = info.get("source_started")
+        servers = {}
+        total_listeners = 0
+        counted = False
+        for address in addresses:
+            check = check_backend(mount, address, host, port)
+            info = listeners.get(address, {}).get(mount, {})
+            check["listeners"] = info.get("listeners")
+            check["server"] = info.get("server") or address
+            check["source_started"] = info.get("source_started")
+            if isinstance(check["listeners"], int):
+                total_listeners += check["listeners"]
+                counted = True
+            servers[address] = check
+
+        broken = {a: s for a, s in servers.items() if s["state"] != "OK"}
+        # the mount is only healthy when every backend a listener may land on is
+        state = "OK"
+        if broken:
+            states = {s["state"] for s in broken.values()}
+            state = "DOWN" if "DOWN" in states else "SILENT"
+
+        if broken:
+            detail = "%d of %d servers %s: %s" % (
+                len(broken), len(servers), state.lower(),
+                ", ".join("%s (%s)" % (a, s["detail"]) for a, s in sorted(broken.items())),
+            )
+        else:
+            detail = "all %d servers fine (%s)" % (
+                len(servers),
+                ", ".join("%.1f dB" % s["volume_db"] for _, s in sorted(servers.items())),
+            )
+
+        result = {
+            "state": state,
+            "detail": detail,
+            "listeners": total_listeners if counted else None,
+            "source_started": next(
+                (s["source_started"] for s in servers.values() if s.get("source_started")), None
+            ),
+            "servers": servers,
+        }
 
         was = previous.get(mount, {})
         previous_state = was.get("state")
@@ -217,9 +282,10 @@ def main():
                     "mount": mount,
                     "from": previous_state,
                     "to": result["state"],
-                    "volume_db": result["volume_db"],
                     "listeners": result["listeners"],
                     "detail": result["detail"],
+                    "servers": {a: {"state": s["state"], "volume_db": s["volume_db"]}
+                                for a, s in servers.items()},
                 },
             )
             listener_note = (
@@ -233,11 +299,11 @@ def main():
                     "Back to normal after %d min in state %s. %s.%s"
                     % (minutes, previous_state, result["detail"], listener_note),
                 )
-            elif result["state"] != "OK":
+            else:
                 notify(
                     "[EFM] %s is %s" % (mount, result["state"]),
-                    "%s.%s Stream: %s/%s"
-                    % (result["detail"], listener_note, STREAM_HOST, mount),
+                    "%s.%s Listeners on a broken server hear nothing while the others are fine."
+                    % (result["detail"], listener_note),
                 )
         else:
             result["since"] = since
@@ -277,8 +343,11 @@ def main():
                 "mounts": {
                     name: {
                         "state": data["state"],
-                        "volume_db": data["volume_db"],
                         "listeners": data["listeners"],
+                        "servers": {
+                            address: server["volume_db"]
+                            for address, server in (data.get("servers") or {}).items()
+                        },
                     }
                     for name, data in summary["mounts"].items()
                 },
