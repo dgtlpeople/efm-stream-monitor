@@ -5,3 +5,5 @@
 {"ts": "2026-09-18T10:46:52Z", "mount": "vibe_ro64", "from": null, "to": "SILENT", "volume_db": -91.0, "listeners": 4, "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound"}
 {"ts": "2026-09-18T10:54:58Z", "mount": "VirginRadio_aac", "from": "OK", "to": "SILENT", "volume_db": -91.0, "listeners": 489, "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound"}
 {"ts": "2026-09-18T10:54:58Z", "mount": "vibe_ro64", "from": "SILENT", "to": "OK", "volume_db": -10.9, "listeners": 57, "detail": "mean volume -10.9 dB"}
+{"ts": "2026-09-18T11:01:48Z", "mount": "EuropaFM_aac", "from": "OK", "to": "SILENT", "volume_db": -91.0, "listeners": 919, "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound"}
+{"ts": "2026-09-18T11:01:48Z", "mount": "virgin_aacp_64k", "from": "OK", "to": "SILENT", "volume_db": -91.0, "listeners": 15, "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound"}
