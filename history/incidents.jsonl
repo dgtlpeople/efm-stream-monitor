@@ -1,0 +1,5 @@
+{"ts": "2026-09-18T10:46:52Z", "mount": "EuropaFM_aac", "from": null, "to": "OK", "volume_db": -12.4, "listeners": 5735, "detail": "mean volume -12.4 dB"}
+{"ts": "2026-09-18T10:46:52Z", "mount": "europafm_aacp48k", "from": null, "to": "OK", "volume_db": -12.5, "listeners": 329, "detail": "mean volume -12.5 dB"}
+{"ts": "2026-09-18T10:46:52Z", "mount": "VirginRadio_aac", "from": null, "to": "OK", "volume_db": -14.0, "listeners": 508, "detail": "mean volume -14.0 dB"}
+{"ts": "2026-09-18T10:46:52Z", "mount": "virgin_aacp_64k", "from": null, "to": "OK", "volume_db": -14.2, "listeners": 49, "detail": "mean volume -14.2 dB"}
+{"ts": "2026-09-18T10:46:52Z", "mount": "vibe_ro64", "from": null, "to": "SILENT", "volume_db": -91.0, "listeners": 4, "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound"}

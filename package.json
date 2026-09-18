@@ -1,0 +1,14 @@
+{
+  "name": "efm-stream-monitor",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Checks that the Europa FM streams are served and that they actually carry sound",
+  "type": "module",
+  "scripts": {
+    "check:streams": "python3 scripts/check_streams.py",
+    "check:player": "node scripts/check_player.mjs"
+  },
+  "dependencies": {
+    "puppeteer-core": "^24.0.0"
+  }
+}

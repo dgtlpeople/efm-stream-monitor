@@ -1,0 +1,43 @@
+name: stream check
+
+# Every five minutes: is each mount served, and is there sound inside it?
+# ffmpeg is preinstalled on the GitHub runners, so nothing needs to be built.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: stream-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check mounts
+        id: check
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        # a broken stream must not fail the workflow, or the state commit below
+        # would be skipped and every run would alert again
+        run: python3 scripts/check_streams.py || echo "problem=1" >> "$GITHUB_OUTPUT"
+
+      - name: Record state
+        run: |
+          if [ -n "$(git status --porcelain state history)" ]; then
+            git config user.name "efm-stream-monitor"
+            git config user.email "actions@users.noreply.github.com"
+            git add state history
+            git commit -m "monitor: $(date -u +'%Y-%m-%d %H:%M') UTC"
+            # another run may have pushed while this one was measuring
+            for attempt in 1 2 3; do
+              git pull --rebase --autostash && git push && break
+              sleep 5
+            done
+          fi

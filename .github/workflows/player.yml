@@ -1,0 +1,56 @@
+name: player check
+
+# Every fifteen minutes: does pressing play on the site actually produce audio?
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      tabs:
+        description: "Background tabs to open first (7 reproduces the socket limit)"
+        required: false
+        default: "0"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: player-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+        with:
+          chrome-version: stable
+
+      - run: npm install --no-audit --no-fund
+
+      - name: Press play
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+          TABS: ${{ github.event.inputs.tabs || '0' }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: node scripts/check_player.mjs || echo "player check reported a problem"
+
+      - name: Record state
+        run: |
+          if [ -n "$(git status --porcelain state)" ]; then
+            git config user.name "efm-stream-monitor"
+            git config user.email "actions@users.noreply.github.com"
+            git add state
+            git commit -m "player: $(date -u +'%Y-%m-%d %H:%M') UTC"
+            for attempt in 1 2 3; do
+              git pull --rebase --autostash && git push && break
+              sleep 5
+            done
+          fi

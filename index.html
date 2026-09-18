@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Status stream Europa FM</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📻</text></svg>">
+<style>
+  :root {
+    --bg: #ffffff;
+    --card: #f6f7f9;
+    --border: #e3e6ea;
+    --text: #1b1f24;
+    --muted: #666e79;
+    --ok: #1a7f4b;
+    --warn: #b7791f;
+    --bad: #c0392b;
+    --accent: #e30613;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14171a; --card: #1d2125; --border: #2c3238; --text: #e8eaed;
+      --muted: #9aa3ad; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a; --card: #1d2125; --border: #2c3238; --text: #e8eaed;
+    --muted: #9aa3ad; --ok: #4ade80; --warn: #fbbf24; --bad: #f87171;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    padding: 32px 16px 64px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  .sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; }
+  .grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .name { font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .badge { font-size: 12px; font-weight: 700; letter-spacing: .04em; padding: 2px 8px; border-radius: 999px; border: 1px solid; }
+  .OK { color: var(--ok); border-color: var(--ok); }
+  .SILENT { color: var(--warn); border-color: var(--warn); }
+  .DOWN, .CHECK-FAILED { color: var(--bad); border-color: var(--bad); }
+  .meta { color: var(--muted); font-size: 13px; margin-top: 8px; }
+  .meta b { color: var(--text); font-weight: 600; }
+  h2 { font-size: 15px; margin: 32px 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; }
+  td.state { font-weight: 600; }
+  .empty { color: var(--muted); font-size: 13px; }
+  footer { margin-top: 36px; color: var(--muted); font-size: 12px; }
+  a { color: var(--accent); }
+  svg.spark { display: block; margin-top: 10px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Status stream Europa FM</h1>
+  <div class="sub" id="checked">Se încarcă…</div>
+
+  <div class="grid" id="mounts"></div>
+
+  <h2>Ascultători, ultimele ore</h2>
+  <div id="spark" class="empty">—</div>
+
+  <h2>Schimbări de stare</h2>
+  <div id="incidents" class="empty">—</div>
+
+  <footer>
+    <b>OK</b> = curg date și se aude. <b>SILENT</b> = curg date, dar volumul e sub prag, adică ascultătorii nu aud nimic.
+    <b>DOWN</b> = mount lipsă sau nedecodabil.<br>
+    Verificat automat la 5 minute. Pagina se reîncarcă singură la un minut.
+  </footer>
+</div>
+
+<script>
+const fmtTime = iso => iso ? new Date(iso).toLocaleString('ro-RO', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+const ago = iso => {
+  if (!iso) return '';
+  const min = Math.round((Date.now() - new Date(iso)) / 60000);
+  if (min < 1) return 'acum';
+  if (min < 60) return `acum ${min} min`;
+  const h = Math.floor(min / 60);
+  return h < 24 ? `acum ${h} h` : `acum ${Math.floor(h / 24)} z`;
+};
+
+async function loadJSON(path) {
+  const r = await fetch(path + '?t=' + Date.now());
+  if (!r.ok) throw new Error(path + ': ' + r.status);
+  return r.json();
+}
+async function loadJSONL(path) {
+  const r = await fetch(path + '?t=' + Date.now());
+  if (!r.ok) return [];
+  const text = await r.text();
+  return text.split('\n').filter(Boolean).map(l => { try { return JSON.parse(l); } catch { return null; } }).filter(Boolean);
+}
+
+function renderMounts(summary) {
+  document.getElementById('checked').textContent =
+    `Ultima verificare: ${fmtTime(summary.checked_at)} (${ago(summary.checked_at)}) · prag liniște ${summary.silence_threshold_db} dB`;
+
+  document.getElementById('mounts').innerHTML = Object.entries(summary.mounts).map(([name, m]) => `
+    <div class="card">
+      <div class="name"><span>${name}</span><span class="badge ${m.state}">${m.state}</span></div>
+      <div class="meta">
+        Volum: <b>${m.volume_db === null || m.volume_db === undefined ? '—' : m.volume_db + ' dB'}</b><br>
+        Ascultători: <b>${m.listeners ?? '—'}</b><br>
+        În această stare din ${fmtTime(m.since)} (${ago(m.since)})<br>
+        Sursa conectată din ${fmtTime(m.source_started)}
+      </div>
+    </div>`).join('');
+}
+
+function renderSpark(samples) {
+  const host = document.getElementById('spark');
+  const points = samples.slice(-72).map(s => ({ ts: s.ts, v: s.mounts?.EuropaFM_aac?.listeners }))
+                        .filter(p => typeof p.v === 'number');
+  if (points.length < 2) { host.textContent = 'Nu sunt încă destule măsurători.'; return; }
+
+  const w = 840, h = 90, pad = 4;
+  const max = Math.max(...points.map(p => p.v)), min = Math.min(...points.map(p => p.v));
+  const span = Math.max(1, max - min);
+  const path = points.map((p, i) => {
+    const x = pad + i * (w - pad * 2) / (points.length - 1);
+    const y = h - pad - ((p.v - min) / span) * (h - pad * 2);
+    return `${i ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+
+  host.classList.remove('empty');
+  host.innerHTML = `
+    <svg class="spark" viewBox="0 0 ${w} ${h}" width="100%" height="${h}" role="img"
+         aria-label="Evoluția numărului de ascultători pe EuropaFM_aac">
+      <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+    </svg>
+    <div class="meta">EuropaFM_aac: între ${min} și ${max} ascultători, ${fmtTime(points[0].ts)} – ${fmtTime(points.at(-1).ts)}</div>`;
+}
+
+function renderIncidents(rows) {
+  const host = document.getElementById('incidents');
+  const recent = rows.slice(-25).reverse();
+  if (!recent.length) { host.textContent = 'Nicio schimbare înregistrată.'; return; }
+  host.classList.remove('empty');
+  host.innerHTML = `
+    <table>
+      <thead><tr><th>Când</th><th>Mount</th><th>Din</th><th>În</th><th>Detalii</th></tr></thead>
+      <tbody>${recent.map(r => `
+        <tr>
+          <td>${fmtTime(r.ts)}</td>
+          <td>${r.mount}</td>
+          <td>${r.from ?? '—'}</td>
+          <td class="state ${r.to}" style="color:var(--${r.to === 'OK' ? 'ok' : r.to === 'SILENT' ? 'warn' : 'bad'})">${r.to}</td>
+          <td>${r.detail ?? ''}</td>
+        </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+async function refresh() {
+  try {
+    renderMounts(await loadJSON('state/summary.json'));
+  } catch (e) {
+    document.getElementById('checked').textContent = 'Nu am putut citi starea: ' + e.message;
+  }
+  renderSpark(await loadJSONL('history/samples.jsonl'));
+  renderIncidents(await loadJSONL('history/incidents.jsonl'));
+}
+
+refresh();
+setInterval(refresh, 60000);
+</script>
+</body>
+</html>
