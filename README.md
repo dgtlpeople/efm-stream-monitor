@@ -29,7 +29,7 @@ play button switching to "playing" while the stream request never gets a connect
 
 | Check | Schedule | What it does |
 | --- | --- | --- |
-| [`scripts/check_streams.py`](scripts/check_streams.py) | every 5 min | decodes ~10 s of each mount with ffmpeg and measures the volume |
+| [`scripts/check_streams.py`](scripts/check_streams.py) | every 5 min | samples ~10 s of every mount on every backend server and measures the volume with ffmpeg |
 | [`scripts/check_player.mjs`](scripts/check_player.mjs) | every 15 min | presses play on europafm.ro in headless Chrome and checks that the audio clock advances |
 
 States per mount:
@@ -43,8 +43,8 @@ stays broken and a recovery message naming how long the problem lasted.
 
 ## Where it runs
 
-GitHub Actions, because ffmpeg is preinstalled on the runners, cron is built in, there is
-no server to maintain and no execution time limit. The workflows commit the current state
+GitHub Actions, because cron is built in, ffmpeg installs in seconds, there is no server
+to maintain and no execution time limit. The workflows commit the current state
 back to the repository, which both keeps a history and refreshes the status page.
 
 Vercel hosts the page. A serverless function is a poor fit for the checks themselves: it
