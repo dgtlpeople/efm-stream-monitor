@@ -64,9 +64,12 @@ more reliable than the thing it monitors.
    no build command, output directory `.`. The page is `index.html` and reads
    `state/summary.json` plus the two history files. Each state commit triggers a redeploy.
 
-Scheduled workflows on GitHub can be delayed by a few minutes under load, and are disabled
-automatically after 60 days without repository activity — the state commits keep the
-repository active. If the five minute interval has to be exact, run the same script from
+GitHub does not keep frequent schedules: a `*/5` cron ran every 5-7 minutes for a while,
+then went quiet for half an hour. Both workflows therefore start twice an hour and loop
+internally — the stream check every 5 minutes, the player check every 15 — so a dropped
+trigger costs one loop rather than the whole cadence, and the next trigger takes over.
+Scheduled workflows are also disabled after 60 days without repository activity, which the
+state commits prevent. If the cadence has to be exact to the minute, run the script from
 cron on any always-on machine instead:
 
 ```cron

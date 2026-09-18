@@ -1,10 +1,15 @@
 name: stream check
 
-# Every five minutes: is each mount served, and is there sound inside it?
-# ffmpeg is installed per run; the check itself takes about 60 seconds.
+# Is each mount served on each backend, and is there sound inside it?
+#
+# GitHub drops frequent schedules when the platform is busy: a "*/5" cron ran
+# every 5-7 minutes for a while, then went quiet for half an hour. So the cron
+# only starts a worker twice an hour, and the worker itself loops, checking
+# every CHECK_EVERY seconds. If one trigger is dropped, the next one starts a
+# fresh loop and takes over.
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "0,30 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -12,11 +17,15 @@ permissions:
 
 concurrency:
   group: stream-check
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CHECK_EVERY: 300
+      LOOP_SECONDS: 1680 # 28 min, so the loop ends before the next trigger
     steps:
       - uses: actions/checkout@v4
 
@@ -24,24 +33,33 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg
 
-      - name: Check mounts
-        id: check
+      - name: Check mounts in a loop
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        # a broken stream must not fail the workflow, or the state commit below
-        # would be skipped and every run would alert again
-        run: python3 scripts/check_streams.py || echo "problem=1" >> "$GITHUB_OUTPUT"
-
-      - name: Record state
         run: |
-          if [ -n "$(git status --porcelain state history)" ]; then
-            git config user.name "efm-stream-monitor"
-            git config user.email "actions@users.noreply.github.com"
-            git add state history
-            git commit -m "monitor: $(date -u +'%Y-%m-%d %H:%M') UTC"
-            # another run may have pushed while this one was measuring
-            for attempt in 1 2 3; do
-              git pull --rebase --autostash && git push && break
-              sleep 5
-            done
-          fi
+          git config user.name "efm-stream-monitor"
+          git config user.email "actions@users.noreply.github.com"
+          deadline=$(( $(date +%s) + LOOP_SECONDS ))
+
+          while :; do
+            started=$(date +%s)
+
+            # a broken stream must not end the loop, the alert already went out
+            python3 scripts/check_streams.py || true
+
+            if [ -n "$(git status --porcelain state history)" ]; then
+              git add state history
+              git commit -q -m "monitor: $(date -u +'%Y-%m-%d %H:%M') UTC"
+              for attempt in 1 2 3; do
+                git pull -q --rebase --autostash && git push -q && break
+                sleep 5
+              done
+            fi
+
+            # keep a steady cadence, and stop before the next trigger overlaps
+            now=$(date +%s)
+            elapsed=$(( now - started ))
+            next=$(( started + CHECK_EVERY ))
+            [ $(( next + elapsed )) -lt $deadline ] || break
+            [ $next -gt $now ] && sleep $(( next - now ))
+          done

@@ -1,9 +1,12 @@
 name: player check
 
-# Every fifteen minutes: does pressing play on the site actually produce audio?
+# Does pressing play on the site actually produce audio?
+#
+# Same shape as the stream check: GitHub drops frequent schedules, so the cron
+# starts a worker twice an hour and the worker loops internally.
 on:
   schedule:
-    - cron: "*/15 * * * *"
+    - cron: "10,40 * * * *"
   workflow_dispatch:
     inputs:
       tabs:
@@ -16,11 +19,15 @@ permissions:
 
 concurrency:
   group: player-check
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      CHECK_EVERY: 900
+      LOOP_SECONDS: 1680 # 28 min, so the loop ends before the next trigger
     steps:
       - uses: actions/checkout@v4
 
@@ -35,22 +42,33 @@ jobs:
 
       - run: npm install --no-audit --no-fund
 
-      - name: Press play
+      - name: Press play in a loop
         env:
           CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
           TABS: ${{ github.event.inputs.tabs || '0' }}
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: node scripts/check_player.mjs || echo "player check reported a problem"
-
-      - name: Record state
         run: |
-          if [ -n "$(git status --porcelain state)" ]; then
-            git config user.name "efm-stream-monitor"
-            git config user.email "actions@users.noreply.github.com"
-            git add state
-            git commit -m "player: $(date -u +'%Y-%m-%d %H:%M') UTC"
-            for attempt in 1 2 3; do
-              git pull --rebase --autostash && git push && break
-              sleep 5
-            done
-          fi
+          git config user.name "efm-stream-monitor"
+          git config user.email "actions@users.noreply.github.com"
+          deadline=$(( $(date +%s) + LOOP_SECONDS ))
+
+          while :; do
+            started=$(date +%s)
+
+            node scripts/check_player.mjs || true
+
+            if [ -n "$(git status --porcelain state)" ]; then
+              git add state
+              git commit -q -m "player: $(date -u +'%Y-%m-%d %H:%M') UTC"
+              for attempt in 1 2 3; do
+                git pull -q --rebase --autostash && git push -q && break
+                sleep 5
+              done
+            fi
+
+            now=$(date +%s)
+            elapsed=$(( now - started ))
+            next=$(( started + CHECK_EVERY ))
+            [ $(( next + elapsed )) -lt $deadline ] || break
+            [ $next -gt $now ] && sleep $(( next - now ))
+          done
