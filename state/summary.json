@@ -1,52 +1,51 @@
 {
-  "checked_at": "2026-09-18T11:01:48Z",
+  "checked_at": "2026-09-18T11:18:55Z",
   "silence_threshold_db": -50.0,
   "mounts": {
     "EuropaFM_aac": {
-      "state": "SILENT",
+      "state": "OK",
       "http": 200,
-      "volume_db": -91.0,
-      "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-      "listeners": 919,
+      "volume_db": -12.9,
+      "detail": "mean volume -12.9 dB",
+      "listeners": 878,
       "source_started": "2026-09-18T09:57:27+0300",
-      "since": "2026-09-18T11:01:48Z"
+      "since": "2026-09-18T11:18:55Z"
     },
     "europafm_aacp48k": {
       "state": "OK",
       "http": 200,
-      "volume_db": -10.1,
-      "detail": "mean volume -10.1 dB",
-      "listeners": 83,
+      "volume_db": -12.5,
+      "detail": "mean volume -12.5 dB",
+      "listeners": 88,
       "source_started": "2026-09-18T09:57:06+0300",
       "since": "2026-09-18T10:46:52Z"
     },
     "VirginRadio_aac": {
-      "state": "SILENT",
-      "http": 200,
-      "volume_db": -91.0,
-      "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-      "listeners": 89,
-      "source_started": "2026-09-18T09:57:21+0300",
-      "since": "2026-09-18T10:54:58Z",
-      "notified_at": null
-    },
-    "virgin_aacp_64k": {
-      "state": "SILENT",
-      "http": 200,
-      "volume_db": -91.0,
-      "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-      "listeners": 15,
-      "source_started": "2026-09-18T09:57:22+0300",
-      "since": "2026-09-18T11:01:48Z"
-    },
-    "vibe_ro64": {
       "state": "OK",
       "http": 200,
-      "volume_db": -11.4,
-      "detail": "mean volume -11.4 dB",
+      "volume_db": -14.9,
+      "detail": "mean volume -14.9 dB",
+      "listeners": 81,
+      "source_started": "2026-09-18T09:57:21+0300",
+      "since": "2026-09-18T11:18:55Z"
+    },
+    "virgin_aacp_64k": {
+      "state": "OK",
+      "http": 200,
+      "volume_db": -15.5,
+      "detail": "mean volume -15.5 dB",
+      "listeners": 13,
+      "source_started": "2026-09-18T09:57:22+0300",
+      "since": "2026-09-18T11:18:55Z"
+    },
+    "vibe_ro64": {
+      "state": "SILENT",
+      "http": 200,
+      "volume_db": -91.0,
+      "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
       "listeners": 6,
       "source_started": "2026-09-18T09:57:39+0300",
-      "since": "2026-09-18T10:54:58Z"
+      "since": "2026-09-18T11:18:55Z"
     }
   }
 }
