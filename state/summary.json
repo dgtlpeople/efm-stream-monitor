@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-20T13:23:48Z",
+  "checked_at": "2026-09-20T13:28:58Z",
   "silence_threshold_db": -50.0,
   "servers": [
     "176.118.186.131",
@@ -10,24 +10,24 @@
     "EuropaFM_aac": {
       "state": "SILENT",
       "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 1578,
+      "listeners": 1553,
       "source_started": "2026-09-19T18:49:53+0300",
       "servers": {
         "176.118.186.131": {
           "state": "OK",
           "http": 200,
-          "volume_db": -11.6,
-          "detail": "mean volume -11.6 dB",
-          "listeners": 685,
+          "volume_db": -10.3,
+          "detail": "mean volume -10.3 dB",
+          "listeners": 667,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
         },
         "176.118.186.132": {
           "state": "OK",
           "http": 200,
-          "volume_db": -11.0,
-          "detail": "mean volume -11.0 dB",
-          "listeners": 647,
+          "volume_db": -10.1,
+          "detail": "mean volume -10.1 dB",
+          "listeners": 644,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-19T18:49:52+0300"
         },
@@ -36,24 +36,25 @@
           "http": 200,
           "volume_db": -91.0,
           "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 246,
+          "listeners": 242,
           "server": "avstreamer3.ntf.ro",
           "source_started": "2026-09-19T18:49:52+0300"
         }
       },
-      "since": "2026-09-20T13:23:48Z"
+      "since": "2026-09-20T13:23:48Z",
+      "notified_at": null
     },
     "europafm_aacp48k": {
       "state": "SILENT",
       "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 125,
+      "listeners": 124,
       "source_started": "2026-09-19T18:49:53+0300",
       "servers": {
         "176.118.186.131": {
           "state": "OK",
           "http": 200,
-          "volume_db": -10.5,
-          "detail": "mean volume -10.5 dB",
+          "volume_db": -10.2,
+          "detail": "mean volume -10.2 dB",
           "listeners": 60,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
@@ -61,8 +62,8 @@
         "176.118.186.132": {
           "state": "OK",
           "http": 200,
-          "volume_db": -10.6,
-          "detail": "mean volume -10.6 dB",
+          "volume_db": -10.2,
+          "detail": "mean volume -10.2 dB",
           "listeners": 47,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
@@ -72,26 +73,26 @@
           "http": 200,
           "volume_db": -91.0,
           "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 18,
+          "listeners": 17,
           "server": "avstreamer3.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
         }
       },
       "since": "2026-09-20T02:34:00Z",
-      "notified_at": "2026-09-20T12:53:53Z"
+      "notified_at": "2026-09-20T13:28:58Z"
     },
     "VirginRadio_aac": {
       "state": "SILENT",
       "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 437,
+      "listeners": 426,
       "source_started": "2026-09-19T18:49:53+0300",
       "servers": {
         "176.118.186.131": {
           "state": "OK",
           "http": 200,
-          "volume_db": -14.2,
-          "detail": "mean volume -14.2 dB",
-          "listeners": 170,
+          "volume_db": -14.1,
+          "detail": "mean volume -14.1 dB",
+          "listeners": 166,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
         },
@@ -100,7 +101,7 @@
           "http": 200,
           "volume_db": -14.1,
           "detail": "mean volume -14.1 dB",
-          "listeners": 207,
+          "listeners": 199,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-19T18:49:52+0300"
         },
@@ -109,35 +110,35 @@
           "http": 200,
           "volume_db": -91.0,
           "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 60,
+          "listeners": 61,
           "server": "avstreamer3.ntf.ro",
           "source_started": "2026-09-19T18:49:52+0300"
         }
       },
       "since": "2026-09-18T15:53:49Z",
-      "notified_at": "2026-09-20T12:53:53Z"
+      "notified_at": "2026-09-20T13:28:58Z"
     },
     "virgin_aacp_64k": {
       "state": "SILENT",
       "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 52,
+      "listeners": 55,
       "source_started": "2026-09-19T18:49:52+0300",
       "servers": {
         "176.118.186.131": {
           "state": "OK",
           "http": 200,
-          "volume_db": -13.3,
-          "detail": "mean volume -13.3 dB",
-          "listeners": 16,
+          "volume_db": -13.6,
+          "detail": "mean volume -13.6 dB",
+          "listeners": 21,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-19T18:49:52+0300"
         },
         "176.118.186.132": {
           "state": "OK",
           "http": 200,
-          "volume_db": -13.2,
-          "detail": "mean volume -13.2 dB",
-          "listeners": 23,
+          "volume_db": -13.6,
+          "detail": "mean volume -13.6 dB",
+          "listeners": 21,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-19T18:49:53+0300"
         },
@@ -152,7 +153,7 @@
         }
       },
       "since": "2026-09-18T15:53:49Z",
-      "notified_at": "2026-09-20T12:53:53Z"
+      "notified_at": "2026-09-20T13:28:58Z"
     },
     "vibe_ro64": {
       "state": "SILENT",
@@ -189,7 +190,7 @@
         }
       },
       "since": "2026-09-19T15:52:16Z",
-      "notified_at": "2026-09-20T12:53:53Z"
+      "notified_at": "2026-09-20T13:28:58Z"
     }
   }
 }
