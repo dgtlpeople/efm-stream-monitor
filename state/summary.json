@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-22T11:35:43Z",
+  "checked_at": "2026-09-22T11:38:58Z",
   "silence_threshold_db": -50.0,
   "servers": [
     "176.118.186.131",
@@ -8,128 +8,17 @@
   ],
   "mounts": {
     "EuropaFM_aac": {
-      "state": "SILENT",
-      "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 14753,
+      "state": "OK",
+      "detail": "all 3 servers fine (-14.4 dB, -15.1 dB, -14.1 dB)",
+      "listeners": 14018,
       "source_started": "2026-09-22T08:54:50+0300",
       "servers": {
         "176.118.186.131": {
           "state": "OK",
           "http": 200,
-          "volume_db": -14.3,
-          "detail": "mean volume -14.3 dB",
-          "listeners": 6960,
-          "server": "avstreamer1.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
-        },
-        "176.118.186.132": {
-          "state": "OK",
-          "http": 200,
-          "volume_db": -14.2,
-          "detail": "mean volume -14.2 dB",
-          "listeners": 7071,
-          "server": "avstreamer2.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
-        },
-        "176.118.186.133": {
-          "state": "SILENT",
-          "http": 200,
-          "volume_db": -91.0,
-          "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 722,
-          "server": "avstreamer3.ntf.ro",
-          "source_started": "2026-09-22T13:08:11+0300"
-        }
-      },
-      "since": "2026-09-22T07:48:18Z",
-      "notified_at": "2026-09-22T11:35:43Z"
-    },
-    "europafm_aacp48k": {
-      "state": "SILENT",
-      "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 787,
-      "source_started": "2026-09-22T08:54:51+0300",
-      "servers": {
-        "176.118.186.131": {
-          "state": "OK",
-          "http": 200,
           "volume_db": -14.4,
           "detail": "mean volume -14.4 dB",
-          "listeners": 340,
-          "server": "avstreamer1.ntf.ro",
-          "source_started": "2026-09-22T08:54:51+0300"
-        },
-        "176.118.186.132": {
-          "state": "OK",
-          "http": 200,
-          "volume_db": -14.2,
-          "detail": "mean volume -14.2 dB",
-          "listeners": 382,
-          "server": "avstreamer2.ntf.ro",
-          "source_started": "2026-09-22T08:54:51+0300"
-        },
-        "176.118.186.133": {
-          "state": "SILENT",
-          "http": 200,
-          "volume_db": -91.0,
-          "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 65,
-          "server": "avstreamer3.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
-        }
-      },
-      "since": "2026-09-21T02:59:18Z",
-      "notified_at": "2026-09-22T11:20:43Z"
-    },
-    "VirginRadio_aac": {
-      "state": "SILENT",
-      "detail": "1 of 3 servers silent: 176.118.186.133 (mean volume -91.0 dB is below -50 dB - data flows but there is no sound)",
-      "listeners": 1466,
-      "source_started": "2026-09-22T08:54:49+0300",
-      "servers": {
-        "176.118.186.131": {
-          "state": "OK",
-          "http": 200,
-          "volume_db": -14.4,
-          "detail": "mean volume -14.4 dB",
-          "listeners": 628,
-          "server": "avstreamer1.ntf.ro",
-          "source_started": "2026-09-22T08:54:49+0300"
-        },
-        "176.118.186.132": {
-          "state": "OK",
-          "http": 200,
-          "volume_db": -14.4,
-          "detail": "mean volume -14.4 dB",
-          "listeners": 747,
-          "server": "avstreamer2.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
-        },
-        "176.118.186.133": {
-          "state": "SILENT",
-          "http": 200,
-          "volume_db": -91.0,
-          "detail": "mean volume -91.0 dB is below -50 dB - data flows but there is no sound",
-          "listeners": 91,
-          "server": "avstreamer3.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
-        }
-      },
-      "since": "2026-09-20T15:57:16Z",
-      "notified_at": "2026-09-22T11:20:43Z"
-    },
-    "virgin_aacp_64k": {
-      "state": "DOWN",
-      "detail": "1 of 3 servers down: 176.118.186.133 (HTTP 404 - the mount is not being served)",
-      "listeners": 131,
-      "source_started": "2026-09-22T08:54:50+0300",
-      "servers": {
-        "176.118.186.131": {
-          "state": "OK",
-          "http": 200,
-          "volume_db": -14.8,
-          "detail": "mean volume -14.8 dB",
-          "listeners": 54,
+          "listeners": 6852,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-22T08:54:50+0300"
         },
@@ -138,57 +27,165 @@
           "http": 200,
           "volume_db": -15.1,
           "detail": "mean volume -15.1 dB",
-          "listeners": 64,
+          "listeners": 6981,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-22T08:54:50+0300"
         },
         "176.118.186.133": {
-          "state": "DOWN",
-          "http": 404,
-          "volume_db": null,
-          "detail": "HTTP 404 - the mount is not being served",
-          "listeners": 13,
+          "state": "OK",
+          "http": 200,
+          "volume_db": -14.1,
+          "detail": "mean volume -14.1 dB",
+          "listeners": 185,
           "server": "avstreamer3.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
+          "source_started": "2026-09-22T14:38:03+0300"
         }
       },
-      "since": "2026-09-22T11:35:43Z"
+      "since": "2026-09-22T11:38:58Z"
     },
-    "vibe_ro64": {
-      "state": "DOWN",
-      "detail": "2 of 3 servers down: 176.118.186.131 (HTTP 404 - the mount is not being served), 176.118.186.133 (HTTP 404 - the mount is not being served)",
-      "listeners": 82,
+    "europafm_aacp48k": {
+      "state": "OK",
+      "detail": "all 3 servers fine (-13.3 dB, -13.6 dB, -14.2 dB)",
+      "listeners": 763,
+      "source_started": "2026-09-22T08:54:51+0300",
+      "servers": {
+        "176.118.186.131": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -13.3,
+          "detail": "mean volume -13.3 dB",
+          "listeners": 343,
+          "server": "avstreamer1.ntf.ro",
+          "source_started": "2026-09-22T08:54:51+0300"
+        },
+        "176.118.186.132": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -13.6,
+          "detail": "mean volume -13.6 dB",
+          "listeners": 384,
+          "server": "avstreamer2.ntf.ro",
+          "source_started": "2026-09-22T08:54:51+0300"
+        },
+        "176.118.186.133": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -14.2,
+          "detail": "mean volume -14.2 dB",
+          "listeners": 36,
+          "server": "avstreamer3.ntf.ro",
+          "source_started": "2026-09-22T14:38:03+0300"
+        }
+      },
+      "since": "2026-09-22T11:38:58Z"
+    },
+    "VirginRadio_aac": {
+      "state": "OK",
+      "detail": "all 3 servers fine (-14.5 dB, -13.8 dB, -13.8 dB)",
+      "listeners": 1410,
+      "source_started": "2026-09-22T08:54:49+0300",
+      "servers": {
+        "176.118.186.131": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -14.5,
+          "detail": "mean volume -14.5 dB",
+          "listeners": 640,
+          "server": "avstreamer1.ntf.ro",
+          "source_started": "2026-09-22T08:54:49+0300"
+        },
+        "176.118.186.132": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -13.8,
+          "detail": "mean volume -13.8 dB",
+          "listeners": 756,
+          "server": "avstreamer2.ntf.ro",
+          "source_started": "2026-09-22T08:54:50+0300"
+        },
+        "176.118.186.133": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -13.8,
+          "detail": "mean volume -13.8 dB",
+          "listeners": 14,
+          "server": "avstreamer3.ntf.ro",
+          "source_started": "2026-09-22T14:38:03+0300"
+        }
+      },
+      "since": "2026-09-22T11:38:58Z"
+    },
+    "virgin_aacp_64k": {
+      "state": "OK",
+      "detail": "all 3 servers fine (-13.7 dB, -14.0 dB, -14.7 dB)",
+      "listeners": 135,
       "source_started": "2026-09-22T08:54:50+0300",
       "servers": {
         "176.118.186.131": {
-          "state": "DOWN",
-          "http": 404,
-          "volume_db": null,
-          "detail": "HTTP 404 - the mount is not being served",
-          "listeners": 5,
+          "state": "OK",
+          "http": 200,
+          "volume_db": -13.7,
+          "detail": "mean volume -13.7 dB",
+          "listeners": 62,
           "server": "avstreamer1.ntf.ro",
           "source_started": "2026-09-22T08:54:50+0300"
         },
         "176.118.186.132": {
           "state": "OK",
           "http": 200,
-          "volume_db": -11.4,
-          "detail": "mean volume -11.4 dB",
-          "listeners": 72,
+          "volume_db": -14.0,
+          "detail": "mean volume -14.0 dB",
+          "listeners": 70,
+          "server": "avstreamer2.ntf.ro",
+          "source_started": "2026-09-22T08:54:50+0300"
+        },
+        "176.118.186.133": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -14.7,
+          "detail": "mean volume -14.7 dB",
+          "listeners": 3,
+          "server": "avstreamer3.ntf.ro",
+          "source_started": "2026-09-22T14:38:03+0300"
+        }
+      },
+      "since": "2026-09-22T11:38:58Z"
+    },
+    "vibe_ro64": {
+      "state": "OK",
+      "detail": "all 3 servers fine (-11.3 dB, -11.6 dB, -11.9 dB)",
+      "listeners": 82,
+      "source_started": "2026-09-22T14:38:03+0300",
+      "servers": {
+        "176.118.186.131": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -11.3,
+          "detail": "mean volume -11.3 dB",
+          "listeners": 3,
+          "server": "avstreamer1.ntf.ro",
+          "source_started": "2026-09-22T14:38:03+0300"
+        },
+        "176.118.186.132": {
+          "state": "OK",
+          "http": 200,
+          "volume_db": -11.6,
+          "detail": "mean volume -11.6 dB",
+          "listeners": 76,
           "server": "avstreamer2.ntf.ro",
           "source_started": "2026-09-22T08:54:51+0300"
         },
         "176.118.186.133": {
-          "state": "DOWN",
-          "http": 404,
-          "volume_db": null,
-          "detail": "HTTP 404 - the mount is not being served",
-          "listeners": 5,
+          "state": "OK",
+          "http": 200,
+          "volume_db": -11.9,
+          "detail": "mean volume -11.9 dB",
+          "listeners": 3,
           "server": "avstreamer3.ntf.ro",
-          "source_started": "2026-09-22T08:54:50+0300"
+          "source_started": "2026-09-22T14:38:03+0300"
         }
       },
-      "since": "2026-09-22T11:35:43Z"
+      "since": "2026-09-22T11:38:58Z"
     }
   }
 }
