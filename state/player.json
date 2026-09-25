@@ -1,7 +1,7 @@
 {
-  "checked_at": "2026-09-25T10:59:45.446Z",
-  "state": "CHECK-FAILED",
-  "detail": "Navigation timeout of 25000 ms exceeded",
+  "checked_at": "2026-09-25T11:22:12.981Z",
+  "state": "SILENT",
+  "detail": "no audio after 25s (readyState=0, networkState=3, error=4, stream responses=0, background tabs=0)",
   "url": "https://www.europafm.ro/",
   "tabs": 0
 }
