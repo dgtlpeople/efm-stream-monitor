@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-26T21:19:23Z",
+  "checked_at": "2026-09-26T21:24:22Z",
   "silence_threshold_db": -50.0,
   "servers": [
     "176.118.186.131",
@@ -78,7 +78,8 @@
           "source_started": null
         }
       },
-      "since": "2026-09-26T21:19:23Z"
+      "since": "2026-09-26T21:19:23Z",
+      "notified_at": null
     },
     "VirginRadio_aac": {
       "state": "DOWN",
@@ -114,7 +115,8 @@
           "source_started": null
         }
       },
-      "since": "2026-09-26T21:19:23Z"
+      "since": "2026-09-26T21:19:23Z",
+      "notified_at": null
     },
     "virgin_aacp_64k": {
       "state": "DOWN",
@@ -150,7 +152,8 @@
           "source_started": null
         }
       },
-      "since": "2026-09-26T21:19:23Z"
+      "since": "2026-09-26T21:19:23Z",
+      "notified_at": null
     },
     "vibe_ro64": {
       "state": "DOWN",
@@ -186,7 +189,8 @@
           "source_started": null
         }
       },
-      "since": "2026-09-26T21:19:23Z"
+      "since": "2026-09-26T21:19:23Z",
+      "notified_at": null
     }
   }
 }
