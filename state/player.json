@@ -1,5 +1,5 @@
 {
-  "checked_at": "2026-09-28T03:33:19.621Z",
+  "checked_at": "2026-09-28T03:48:19.361Z",
   "state": "SILENT",
   "detail": "no audio after 25s (readyState=0, networkState=3, error=4, stream responses=0, background tabs=0)",
   "url": "https://www.europafm.ro/",
